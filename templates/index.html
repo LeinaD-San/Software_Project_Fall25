@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> Study Buddy +</title>
+</head>
+<body>
+    <h1>Study Sessions </h1>
+    <ul>
+        {% for Session in sessions %}
+            <li>
+                <strong>{{ session.title }} </strong><br>
+                Location: {{ session.location }}<br>
+                Date: {{ session.session_time.strftime(' %Y-%m-%d %H:%M') }}
+                </li>
+        {% else %}
+            <li>No study sessions yet!</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
