@@ -23,12 +23,23 @@ class Post(db.Model):
 
 @app.route('/')
 def home():
-    sessions = Post.query.all()
-    return render_template('index.html', sessions=sessions)
-    #pass
+    return render_template('home.html',user = 'user')
 
+
+@app.route('/<name>')
+def user(name):
+    return f'Hello  {name}!'
+
+
+@app.route('/sessions')
+def sessions():
+    sessions = Post.query.all()
+    return render_template('index.html')
+    #pass
     #to my understanding this is incase if no database is found. 
 
+
+    
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
