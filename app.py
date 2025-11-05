@@ -21,14 +21,15 @@ class Post(db.Model):
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
-        user = request.form['']
+        user = request.form['user']
         return redirect(url_for("user", usr = user))
     else:
         return render_template('login.html')
 
 @app.route('/')
 def home():
-    current_user = {'name': user}
+    #current_user = {'name': 'user'}
+    current_user = 'user'
     return render_template('home.html',user = current_user)
 
 @app.route('/session')
