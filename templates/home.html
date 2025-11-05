@@ -1,93 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title> Study Sync+</title>
-    <style>
-        /* Style the body */
-        body
-        {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color:#f3f4f6;
-            margin: 0;
-            padding: 0;
-        }
+{% extends "base.html" %}
 
-        /*Navigation bar*/
-        header 
-        {
-            background-color: #2E8857;
-            color: rgb(236, 137, 15);
-            text-align: center;
-            padding: 1rem 0;
-        }
+{% block title %}Available Sessions - Study Sync+{% endblock %}
 
-        /*container for content*/
-        main
-        {
-            max-width: 800px;
-            margin: 2rem auto;
-            background-color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        h1{
-            margin-top: 0;
-        }
-
-        /*sessions list styling*/
-        ul{
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li{
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
-        }
-
-        li strong{
-            color: #374151;
-            font-size: 1.1em;
-        }
-
-        .empty-message {
-            text-align: center;
-            color: #6b7280;
-        }
-
-        footer {
-            text-align: center;
-            color: #6b7280;
-            margin-top: 3rem;
-        }
-
-    </style>
-</head>
-<body>
-    <header>
-        <h1>Study Sync+ </h1>
-        <p>Find, join, and create study sessions with other students!</p>
-    </header>
-    <main>
-        <a href="{{ url_for('sessions') }}" class="'btn">Sessions</a> 
-    </a>
-        <h2>Home Page</h2>
-        <p>Hi! {{user}}</p>
-        <ul>
-           <li>Still trying to figure our lives out... please be patient. </li>
-        </ul>
-    </main>
-
+{% block content %}
+    <h2>Hi! {{user.name}}</h2>
     <main2>
         <u>
-            <li>Upcoming Study Session</li>
+            <a href="{{ url_for('session') }}" class="'btn"><li>Upcoming Study Session</li></a>
+
         </ul>
         <u>
             <li>Upcoming Community Events</li>
@@ -96,8 +16,4 @@
             <li>Feed</li>
         </ul>
     </main2>
-    <footer>
-        2025 Study Sync+ | Built with ❤️ for students
-    </footer>
-</body>
-</html>
+{% endblock %}

@@ -1,7 +1,6 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
-
 
 #This file is used to create and run the website
 #, connecting everything together. 
@@ -19,27 +18,30 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.DateTime, default = datetime.now(timezone.utc))
     
-
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        user = request.form['']
+        return redirect(url_for("user", usr = user))
+    else:
+        return render_template('login.html')
 
 @app.route('/')
 def home():
-    return render_template('home.html',user = 'user')
+    current_user = {'name': user}
+    return render_template('home.html',user = current_user)
 
-
-@app.route('/<name>')
-def user(name):
-    return f'Hello  {name}!'
-
-
-@app.route('/sessions')
-def sessions():
+@app.route('/session')
+def session():
     sessions = Post.query.all()
-    return render_template('index.html')
+    return render_template('session.html')
     #pass
     #to my understanding this is incase if no database is found. 
 
+@app.route('/<user>')
+def user(usr):
+    return render_template('user.html')
 
-    
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Available Sessions - Study Sync+{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('home') }}" class="btn">Home Page</a> 
+    <h2> Available study sessions:</h2>
+    <ul>
+        {% for session in sessions %}
+            <li>
+                <strong>{{ session.title }} </strong><br>
+                Location: {{ session.location }}<br>
+                Date: {{ session.session_time.strftime(' %Y-%m-%d %H:%M') }}
+            </li>
+        {% else %}
+            <li class="empty-message">Still trying to figure our lives out... please be patient. </li>
+        {% endfor %}
+    </ul>
+
+    <div style="text-align: center; margin-top: 2rem;">
+    </div>
+{% endblock %}
