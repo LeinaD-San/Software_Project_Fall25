@@ -39,9 +39,9 @@ def session():
     #pass
     #to my understanding this is incase if no database is found. 
 
-@app.route('/<user>')
+@app.route('/<usr>')
 def user(usr):
-    return render_template('user.html')
+    return render_template('user.html',user_name=usr)
 
 if __name__ == '__main__':
     with app.app_context():
