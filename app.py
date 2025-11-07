@@ -22,9 +22,17 @@ class Post(db.Model):
 def login():
     if request.method == 'POST':
         user = request.form['user']
-        return redirect(url_for("user", usr = user))
+        local_part,institution = user.split('@')
+        name_part = local_part.split('.')
+        first_name = name_part[0]
+
+        if institution != 'utrgv.edu':
+            return render_template('login.html')
+
+        return redirect(url_for("user", usr = first_name.capitalize()))
     else:
         return render_template('login.html')
+
 
 @app.route('/')
 def home():
