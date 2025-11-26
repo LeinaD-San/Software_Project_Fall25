@@ -41,11 +41,12 @@ def home():
     return render_template('home.html',user = current_user)
 
 @app.route('/session')
-def session():
+def session_page():
     sessions = Post.query.all()
-    return render_template('session.html')
+    return render_template('session.html', sessions=sessions)
     #pass
-    #to my understanding this is incase if no database is found. 
+    #to my understanding this is incase if no database is found.
+    # N: Had to fix the name of the route function.  
 
 @app.route('/<usr>')
 def user(usr):
