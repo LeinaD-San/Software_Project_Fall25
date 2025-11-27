@@ -128,6 +128,10 @@ def home():
     current_user = session.get('user', None)
     return render_template('home.html', user=current_user)
 
+@app.route('/sessions')
+def sessions_page():
+    sessions = StudySession.query.all()
+    return render_template('session.html', sessions=sessions)
 
 
 # -----------------------------
