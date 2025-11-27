@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Create a Study Session</h2>
+
+<form method="POST">
+    Title: <input type="text" name="title"><br><br>
+    Subject: <input type="text" name="subject"><br><br>
+    Description:<br>
+    <textarea name="description"></textarea><br><br>
+    Location: <input type="text" name="location"><br><br>
+    Date & Time: <input type="text" name="date_time"><br><br>
+    Public? <input type="checkbox" name="is_public"><br><br>
+
+    <input type="submit" value="Create">
+</form>
+
+<a href="{{ url_for('user', usr=profile.name) }}">Cancel</a>
+{% endblock %}

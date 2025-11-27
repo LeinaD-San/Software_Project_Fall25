@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<h2>Edit Profile for {{ profile.name }}</h2>
+
+<form method="POST">
+    <label>Major:</label><br>
+    <input type="text" name="major" value="{{ profile.major }}"><br><br>
+
+    <label>Classes (comma-separated):</label><br>
+    <input type="text" name="classes" value="{{ profile.classes }}"><br><br>
+
+    <label>Interests:</label><br>
+    <input type="text" name="interests" value="{{ profile.interests }}"><br><br>
+
+    <label>Bio:</label><br>
+    <textarea name="bio" rows="4" cols="50">{{ profile.bio }}</textarea><br><br>
+
+    <input type="submit" value="Save Changes">
+</form>
+
+<p><a href="{{ url_for('user', usr=profile.name) }}">Back to Profile</a></p>
+{% endblock %}

@@ -73,9 +73,27 @@
 </head>
 <body>
     <header>
-        <h1>Study Sync+ </h1>
-        <p>Find, join, and create study sessions with other students!</p>
-    </header>
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 1rem;">
+        <div>
+            <h1>Study Sync+</h1>
+            <p>Find, join, and create study sessions with other students!</p>
+        </div>
+
+        <nav>
+            <a href="{{ url_for('home') }}" style="margin-right: 1rem;">Home</a>
+            <a href="{{ url_for('sessions_page') }}" style="margin-right: 1rem;">Sessions</a>
+            
+
+            {% if session.get('user') %}
+                <span style="margin-right: 0.5rem;">Hi, {{ session.get('user') }}!</span>
+                <a href="{{ url_for('user', usr=session.get('user')) }}" style="margin-right: 1rem;">Profile</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
     
     <main>
         {% block content %}{% endblock %}
