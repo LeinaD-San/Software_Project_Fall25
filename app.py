@@ -127,12 +127,12 @@ def login():
 def home():
     current_user = session.get('user', None)
     return render_template('home.html', user=current_user)
-
+'''
 @app.route('/sessions')
 def sessions_page():
     sessions = StudySession.query.all()
     return render_template('session.html', sessions=sessions)
-
+'''
 
 # -----------------------------
 # CREATE STUDY SESSION
@@ -157,6 +157,35 @@ def create_session(usr):
 
     return render_template('create_session.html', profile=profile)
 
+'''
+@app.route('/edit-session/<int:session_id>',methods=['GET','POST'])
+def edit_session(session_id):
+    sess = StudySession.query.get_or_404(session_id)
+
+    if request.method == 'POST':
+        sess.title = request.form['title']
+        sess.subject = request.form['subject']
+        sess.description = request.form['description']
+        sess.location = request.form['location']
+        sess.date_time = request.form['date_time']
+        sess.is_public = request.form['is_public'] == 'on'
+
+        db.session.commit()
+        return redirect(url_for('session_page'))
+
+    return render_template('edit_session.html',session=sess)
+
+
+@app.route('/delete-session/<int:session_id',methods = ['POST'])
+def delete_session(session_id):
+    sess = StudySession.query.get_or_404(session_id)
+
+    db.session.delete(sess)
+    db.session.commit()
+
+    return redirect(url_for('session_page'))
+           
+'''
 
 # -----------------------------
 # CREATE POST
@@ -197,7 +226,7 @@ def is_friend(user1, user2):
     return user2 in user1.friends
 
 @app.route('/sessions')
-def sessions_page():
+def session_page():
     username = session.get('user')
     current_user = UserProfile.query.filter_by(name=username).first() if username else None
 
@@ -230,7 +259,7 @@ def join_session(session_id):
         sess.attendees.append(user)
         db.session.commit()
 
-    return redirect(url_for('sessions_page'))
+    return redirect(url_for('session_page'))
 
 
 # -----------------------------
