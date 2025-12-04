@@ -1,60 +1,195 @@
 {% extends "base.html" %}
 {% block title %}Profile{% endblock %}
 
+{% block head %}
+<style>
+
+    /* Page wrapper */
+    .profile-wrapper {
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    /* Main profile card */
+    .profile-card {
+        width: 100%;
+        max-width: 750px;
+        background: #ffffff;
+        padding: 1.8rem;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        transition: 0.3s ease;
+        text-align: center;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .profile-title {
+        font-size: 2rem;
+        color: #2E8857;
+        margin-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    .profile-buttons {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.7rem;
+    }
+
+    .profile-btn,
+    .friend-btn {
+        background: #2E8857;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.25s ease;
+        display: inline-block;
+        font-weight: 600;
+    }
+
+    .profile-btn:hover,
+    .friend-btn:hover {
+        background: #256f46;
+        transform: translateY(-2px);
+    }
+
+    /* Content cards (Posts, Sessions, Info) */
+    .content-card {
+        width: 100%;
+        max-width: 750px;
+        background: #ffffff;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.07);
+        transition: 0.3s ease;
+    }
+
+    .content-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    }
+
+    .section-title {
+        font-size: 1.6rem;
+        color: #2E8857;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .info-item {
+        margin-bottom: 0.7rem;
+        font-size: 1.1rem;
+        color: #374151;
+    }
+
+    .info-label {
+        font-weight: 700;
+        color: #2E8857;
+    }
+
+    /* Lists */
+    ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    li {
+        padding: 0.7rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        line-height: 1.4;
+    }
+
+    li:last-child {
+        border-bottom: none;
+    }
+
+    .post-date {
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+</style>
+{% endblock %}
+
 {% block content %}
 
-<h1>Welcome, {{ profile.name }}!</h1>
+<div class="profile-wrapper">
 
-<p><a href="{{ url_for('edit_profile', usr=profile.name) }}">Edit Profile</a></p>
+    <!-- PROFILE HEADER CARD -->
+    <div class="profile-card">
+        <h1 class="profile-title">👤 {{ profile.name }}</h1>
 
-<h3>Major: {{ profile.major if profile.major else "Not set yet" }}</h3>
-<h3>Classes: {{ profile.classes if profile.classes else "No classes listed yet" }}</h3>
-<p><strong>Interests:</strong> {{ profile.interests if profile.interests else "No interests added yet" }}</p>
-<p><strong>Bio:</strong> {{ profile.bio if profile.bio else "No bio yet." }}</p>
+        <div class="profile-buttons">
+            <a class="profile-btn" href="{{ url_for('edit_profile', usr=profile.name) }}">✏️ Edit Profile</a>
+            <a class="profile-btn" href="{{ url_for('new_post', usr=profile.name) }}">📝 Create Study Tip Post</a>
+            <a class="profile-btn" href="{{ url_for('create_session', usr=profile.name) }}">📚 Create Study Session</a>
+
+            <form method="POST" action="{{ url_for('send_friend_request', usr=profile.name) }}" style="display:inline;">
+                <button class="friend-btn" type="submit">🤝 Send Friend Request</button>
+            </form>
+        </div>
+    </div>
 
 
-<!-- PROFILE BIO -->
-<h2>Bio</h2>
-<p>{{ profile.bio if profile.bio else "No bio yet." }}</p>
+    <!-- PROFILE INFORMATION CARD -->
+    <div class="content-card">
+        <h2 class="section-title">📘 Profile Information</h2>
 
-<!-- STUDENT INFO -->
-<h3>Major: {{ profile.major if profile.major else "Add major in profile settings" }}</h3>
-<h3>Classes: {{ profile.classes if profile.classes else "No classes listed yet." }}</h3>
+        <div class="info-item"><span class="info-label">Major:</span> {{ profile.major if profile.major else "Not set yet" }}</div>
+        <div class="info-item"><span class="info-label">Classes:</span> {{ profile.classes if profile.classes else "No classes listed yet" }}</div>
+        <div class="info-item"><span class="info-label">Interests:</span> {{ profile.interests if profile.interests else "No interests added yet" }}</div>
+        <div class="info-item"><span class="info-label">Bio:</span> {{ profile.bio if profile.bio else "No bio yet." }}</div>
+    </div>
 
-<hr>
 
-<!-- CREATE BUTTONS -->
-<a href="{{ url_for('new_post', usr=profile.name) }}">Create Study Tip Post</a> |
-<a href="{{ url_for('create_session', usr=profile.name) }}">Create Study Session</a>
-<form method="POST" action="{{ url_for('send_friend_request', usr=profile.name) }}">
-    <button type="submit">Send Friend Request</button>
-</form>
+    <!-- POSTS CARD -->
+    <div class="content-card">
+        <h2 class="section-title">📝 Your Posts</h2>
 
-<hr>
+        <ul>
+        {% for post in posts %}
+            <li>
+                {{ post.content }}<br>
+                <span class="post-date">{{ post.created_at }}</span>
+            </li>
+        {% else %}
+            <li>No posts yet.</li>
+        {% endfor %}
+        </ul>
+    </div>
 
-<!-- USER POSTS -->
-<h2>Your Posts</h2>
-<ul>
-{% for post in posts %}
-    <li>{{ post.content }} <br><small>{{ post.created_at }}</small></li>
-{% else %}
-    <li>No posts yet.</li>
-{% endfor %}
-</ul>
 
-<hr>
+    <!-- STUDY SESSIONS CARD -->
+    <div class="content-card">
+        <h2 class="section-title">📚 Your Study Sessions</h2>
 
-<!-- STUDY SESSIONS -->
-<h2>Your Study Sessions</h2>
-<ul>
-{% for s in sessions %}
-    <li>
-        <strong>{{ s.title }}</strong> - {{ s.subject }} <br>
-        {{ s.date_time }} @ {{ s.location }}
-    </li>
-{% else %}
-    <li>You haven't created any study sessions yet.</li>
-{% endfor %}
-</ul>
+        <ul>
+        {% for s in sessions %}
+            <li>
+                <strong>{{ s.title }}</strong> – {{ s.subject }}<br>
+                {{ s.date_time }} @ {{ s.location }}
+            </li>
+        {% else %}
+            <li>You haven't created any study sessions yet.</li>
+        {% endfor %}
+        </ul>
+    </div>
+
+</div>
 
 {% endblock %}
