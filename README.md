@@ -1,5 +1,5 @@
 # Software_Project_Fall25
-# Study Buddy 
+# Study Buddy
 ## Social Platform that helps students find thier study buddy.
 ## With this being a social media platform, users are also able 
 ## to share thier studying methods, exam prepping tips, or resources.
