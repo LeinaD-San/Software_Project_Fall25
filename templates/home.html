@@ -2,21 +2,70 @@
 
 {% block title %}Home - Study Sync+{% endblock %}
 
+{% block head %}
+<style>
+    /* Make the home menu look modern and easy to read */
+    .home-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .home-card {
+        background: #ffffff;
+        padding: 1.2rem;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        text-decoration: none;
+        color: #2E3A46;
+        font-weight: 600;
+        font-size: 1.2rem;
+        transition: 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    }
+
+    .home-card:hover {
+        background: #2E8857;
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .welcome-title {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        color: #2E8857;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+
     {% if user %}
-        <h2>Hi! {{user}}</h2>
+        <h2 class="welcome-title">Welcome back, {{ user }}! 🎉</h2>
     {% else %}
-    <main2>
-        <h2>Hi!</h2>
+        <h2 class="welcome-title">Welcome to Study Sync+ 👋</h2>
+    {% endif %}
+
+    <div class="home-menu">
+        <a class="home-card" href="{{ url_for('session_page') }}">
+            📚 Upcoming Study Sessions
+        </a>
+
+        <a class="home-card" href="#">
+            🎉 Upcoming Community Events
+        </a>
+
+        <a class="home-card" href="#">
+            📰 Your Feed
+        </a>
+
+        {% if not session.get('user') %}
+            <a class="home-card" href="{{ url_for('login') }}">
+                🔑 Login / Sign In
+            </a>
         {% endif %}
-        <li><a href="{{ url_for('session_page') }}">Upcoming Study Sessions</a></li>
+    </div>
 
-        <li><a href="#">Upcoming Community Events</a></li>
-
-        <li><a href="#">Feed</a></li>
-
-        <li><a href="{{ url_for('login') }}">Login</a></li>
-
-    </ul>
-    
 {% endblock %}
