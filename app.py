@@ -261,6 +261,11 @@ def join_session(session_id):
 
     return redirect(url_for('session_page'))
 
+'''
+
+'''
+
+
 
 # -----------------------------
 # USER PROFILE DASHBOARD
