@@ -9,7 +9,7 @@ app.secret_key = 'superdupermegaexclusivesecretkeyshh'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
-
+'Tamara here now:)'
 
 # -----------------------------
 # DATABASE MODELS
