@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Session Details{% endblock %}
+
+{% block content %}
+
+<!-- SESSION INFO (PRIMARY) -->
+<div class="content-card">
+    <h2 style="color:#2E8857;">📚 {{ study_session.title }}</h2>
+
+    <p><strong>Subject:</strong> {{ study_session.subject }}</p>
+    <p><strong>Date & Time:</strong> {{ study_session.date_time }}</p>
+    <p><strong>Location:</strong> {{ study_session.location }}</p>
+
+    <p><strong>Description:</strong></p>
+    <p>{{ study_session.description }}</p>
+
+    <p>
+        <strong>Visibility:</strong>
+        {{ "Public" if study_session.is_public else "Private" }}
+    </p>
+</div>
+
+<br>
+
+<!-- CREATOR INFO (SECONDARY) -->
+<div class="content-card">
+    <h3 style="color:#2E8857;">👤 Session Created By</h3>
+
+    <p><strong>Name:</strong> {{ creator.name }}</p>
+    <p><strong>Major:</strong> {{ creator.major or "Not provided" }}</p>
+    <p><strong>Classes:</strong> {{ creator.classes or "Not provided" }}</p>
+
+    <p><strong>Bio:</strong></p>
+    <p>{{ creator.bio or "No bio available." }}</p>
+
+    <a href="{{ url_for('user', usr=creator.name) }}">
+        View Full Profile →
+    </a>
+</div>
+
+<!-- JOIN BUTTON -->
+{% if session.get('user') %}
+    {% if session.get('user') != creator.name %}
+        <form method="POST"
+              action="{{ url_for('join_session', session_id=study_session.id) }}">
+            <button type="submit">
+                Join Session
+            </button>
+        </form>
+    {% else %}
+        <p><em>You created this session.</em></p>
+    {% endif %}
+{% endif %}
+
+{% endblock %}

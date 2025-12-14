@@ -95,6 +95,20 @@
 {% block content %}
 
 <h2 style="color:#2E8857; text-align:center;">Study Sessions</h2>
+{% if session.get('user') %}
+<div style="text-align:center; margin-bottom: 1.5rem;">
+    <a href="{{ url_for('create_session', usr=session.get('user')) }}"
+       style="background:#2E8857;
+              color:white;
+              padding:0.6rem 1.4rem;
+              border-radius:8px;
+              text-decoration:none;
+              font-weight:600;
+              display:inline-block;">
+        ➕ Create Study Session
+    </a>
+</div>
+{% endif %}
 
 <div class="tabs">
     <button class="tab-btn active" onclick="showTab('all')">All Sessions</button>
@@ -107,7 +121,13 @@
     <div class="tab-content" id="all">
         {% for s in sessions %}
             <div class="session-card">
-                <div class="session-title">{{ s.title }}</div>
+                <div class="session-title">
+    <a href="{{ url_for('session_detail', session_id=s.id) }}"
+       style="color:#2E8857;text-decoration:none;">
+        {{ s.title }}
+    </a>
+</div>
+
                 <div class="session-details">
                     {{ s.subject }} • {{ s.date_time }} • {{ s.location }}
                 </div>
@@ -122,12 +142,30 @@
 
     <!-- MY -->
     <div class="tab-content" id="my" style="display:none;">
-        {% for s in my_sessions %}
-            <div class="session-card">{{ s.title }}</div>
-        {% else %}
-            <p class="empty-message">No joined sessions.</p>
-        {% endfor %}
-    </div>
+    {% for s in my_sessions %}
+        <div class="session-card">
+            <div class="session-title">
+                <a href="{{ url_for('session_detail', session_id=s.id) }}"
+                   style="color:#2E8857;text-decoration:none;">
+                    {{ s.title }}
+                </a>
+            </div>
+
+            <div class="session-details">
+                {{ s.subject }} • {{ s.date_time }} • {{ s.location }}
+            </div>
+
+            {% if s.creator_id == profile.id %}
+                <span class="session-type public-tag">You created this</span>
+            {% else %}
+                <span class="session-type private-tag">Joined</span>
+            {% endif %}
+        </div>
+    {% else %}
+        <p class="empty-message">You haven’t created or joined any sessions yet.</p>
+    {% endfor %}
+</div>
+
 
     <!-- UPCOMING -->
     <div class="tab-content" id="upcoming" style="display:none;">
@@ -164,4 +202,3 @@ function showTab(name) {
 
 
 {% endblock %}
-

@@ -84,6 +84,10 @@ class StudySession(db.Model):
 # -----------------------------
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+    # If already logged in, go to sessions
+    if session.get('user'):
+        return redirect(url_for('session_page'))
+
     if request.method == 'POST':
         try:
             user_email = request.form['user']
@@ -109,11 +113,11 @@ def login():
             db.session.add(profile)
             db.session.commit()
 
-        # 🔥 Store login in Flask session
+        # Store login in Flask session
         session['user'] = first_name
 
-        # Go to user dashboard
-        return redirect(url_for('user', usr=first_name))
+        # Redirect to sessions (main page)
+        return redirect(url_for('session_page'))
 
     return render_template('login.html')
 
@@ -124,14 +128,25 @@ def login():
 # -----------------------------
 @app.route('/')
 def home():
-    current_user = session.get('user', None)
-    return render_template('home.html', user=current_user)
+    return redirect(url_for('login'))
+
 '''
 @app.route('/sessions')
 def sessions_page():
     sessions = StudySession.query.all()
     return render_template('session.html', sessions=sessions)
 '''
+@app.route('/session/<int:session_id>')
+def session_detail(session_id):
+    sess = StudySession.query.get_or_404(session_id)
+    creator = UserProfile.query.get(sess.creator_id)
+
+    return render_template(
+        'session_detail.html',
+        study_session=sess,
+        creator=creator
+    )
+
 
 # -----------------------------
 # CREATE STUDY SESSION
@@ -156,10 +171,19 @@ def create_session(usr):
 
     return render_template('create_session.html', profile=profile)
 
-'''
-@app.route('/edit-session/<int:session_id>',methods=['GET','POST'])
+@app.route('/edit-session/<int:session_id>', methods=['GET', 'POST'])
 def edit_session(session_id):
     sess = StudySession.query.get_or_404(session_id)
+
+    username = session.get('user')
+    if not username:
+        return redirect(url_for('login'))
+
+    user = UserProfile.query.filter_by(name=username).first()
+
+    # Only creator can edit
+    if sess.creator_id != user.id:
+        return redirect(url_for('session_page'))
 
     if request.method == 'POST':
         sess.title = request.form['title']
@@ -167,24 +191,32 @@ def edit_session(session_id):
         sess.description = request.form['description']
         sess.location = request.form['location']
         sess.date_time = request.form['date_time']
-        sess.is_public = request.form['is_public'] == 'on'
+        sess.is_public = 'is_public' in request.form
 
         db.session.commit()
-        return redirect(url_for('session_page'))
+        return redirect(url_for('user', usr=username))
 
-    return render_template('edit_session.html',session=sess)
+    return render_template('edit_session.html', study_session=sess)
 
-
-@app.route('/delete-session/<int:session_id',methods = ['POST'])
+@app.route('/delete-session/<int:session_id>', methods=['POST'])
 def delete_session(session_id):
     sess = StudySession.query.get_or_404(session_id)
+
+    username = session.get('user')
+    if not username:
+        return redirect(url_for('login'))
+
+    user = UserProfile.query.filter_by(name=username).first()
+
+    # Only creator can delete
+    if sess.creator_id != user.id:
+        return redirect(url_for('session_page'))
 
     db.session.delete(sess)
     db.session.commit()
 
-    return redirect(url_for('session_page'))
-           
-'''
+    return redirect(url_for('user', usr=username))
+
 
 # -----------------------------
 # CREATE POST
@@ -227,38 +259,57 @@ def is_friend(user1, user2):
 @app.route('/sessions')
 def session_page():
     username = session.get('user')
-    current_user = UserProfile.query.filter_by(name=username).first() if username else None
+    if not username:
+        return redirect(url_for('login'))
+
+    current_user = UserProfile.query.filter_by(name=username).first()
 
     all_sessions = StudySession.query.all()
+
     visible_sessions = []
+    my_sessions = []
 
     for s in all_sessions:
-        if s.is_public:
+        # ---------- MY SESSIONS ----------
+        if s.creator_id == current_user.id or current_user in s.attendees:
+            my_sessions.append(s)
+
+        # ---------- ALL / VISIBLE SESSIONS ----------
+        if s.creator_id == current_user.id:
+            visible_sessions.append(s)
+        elif s.is_public:
             visible_sessions.append(s)
         else:
-            # private: only friends of creator can view
             creator = s.creator
-            if current_user and is_friend(current_user, creator):
+            if is_friend(current_user, creator):
                 visible_sessions.append(s)
 
-    return render_template('session.html', sessions=visible_sessions)
+    return render_template(
+    'session.html',
+    sessions=visible_sessions,
+    my_sessions=my_sessions,
+    profile=current_user
+)
+
+
 
 @app.route('/join-session/<int:session_id>', methods=['POST'])
 def join_session(session_id):
     username = session.get('user')
-
     if not username:
         return redirect(url_for('login'))
 
     user = UserProfile.query.filter_by(name=username).first()
     sess = StudySession.query.get_or_404(session_id)
 
-    # Check if already attending
+    # Add user if not already attending
     if user not in sess.attendees:
         sess.attendees.append(user)
         db.session.commit()
 
-    return redirect(url_for('session_page'))
+    # 👉 Redirect to session detail page
+    return redirect(url_for('session_detail', session_id=sess.id))
+
 
 '''
 
@@ -303,14 +354,7 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
-@app.route("/feed")
-def feed():
-    username = session.get('user')
-    if not username:
-        return redirect(url_for('login'))
 
-    posts = UserPost.query.order_by(UserPost.created_at.desc()).all()
-    return render_template("feed.html", posts=posts)
 
 
 # -----------------------------

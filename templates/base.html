@@ -92,27 +92,35 @@
     <header>
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 1rem;">
         <div>
-            <h1>Study Sync+</h1>
+            <h1>
+    <a href="{{ url_for('session_page') }}"
+       style="color:inherit;text-decoration:none;">
+        Study Sync+
+    </a>
+</h1>
             <p>Find, join, and create study sessions with other students!</p>
         </div>
 
         <nav>
-            <a href="{{ url_for('home') }}" style="margin-right: 1rem;">Home</a>
-            <a href="{{ url_for('session_page') }}" style="margin-right: 1rem;">Sessions</a>
-            <a href="{{ url_for('feed') }}" class="btn-nav" style="margin-right: 1rem;">Your Feed</a>
+    {% if session.get('user') %}
+        <a href="{{ url_for('session_page') }}" style="margin-right: 1rem;">Sessions</a>
+
+        <a href="{{ url_for('user', usr=session.get('user')) }}"
+           style="margin-right: 1rem;">
+            Hi,{{ session.get('user')}}!
+        </a>
 
 
 
-            
 
-            {% if session.get('user') %}
-                <span style="margin-right: 0.5rem;">Hi, {{ session.get('user') }}!</span>
-                <a href="{{ url_for('user', usr=session.get('user')) }}" style="margin-right: 1rem;">Profile</a>
-                <a href="{{ url_for('logout') }}">Logout</a>
-            {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
-            {% endif %}
-        </nav>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+    {% endif %}
+</nav>
+
+
+
     </div>
 </header>
     

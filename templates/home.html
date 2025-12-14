@@ -53,13 +53,9 @@
             📚 Upcoming Study Sessions
         </a>
 
-        <a class="home-card" href="#">
-            🎉 Upcoming Community Events
-        </a>
+    
 
-        <a class="home-card" href="#">
-            📰 Your Feed
-        </a>
+        
 
         {% if not session.get('user') %}
             <a class="home-card" href="{{ url_for('login') }}">
