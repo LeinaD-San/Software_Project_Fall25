@@ -41,12 +41,6 @@
         border-radius: 10px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         border-left: 6px solid #2E8857;
-        animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-        from {opacity: 0; transform: translateY(6px);}
-        to {opacity: 1; transform: translateY(0);}
     }
 
     .session-title {
@@ -59,7 +53,6 @@
     .session-details {
         color: #374151;
         margin-bottom: 0.5rem;
-        line-height: 1.4;
     }
 
     .session-type {
@@ -84,123 +77,11 @@
     .join-btn {
         margin-top: 1rem;
         padding: 0.5rem 1.2rem;
-        font-size: 1rem;
         background-color: #2E8857;
         color: white;
         border: none;
         border-radius: 8px;
         cursor: pointer;
-        transition: 0.25s ease;
-    }
-
-    .join-btn:hover {
-        background-color: #256f46;
-        transform: translateY(-2px);
-    }
-
-    .empty-message {
-        text-align: center;
-        color: #6b7280;
-        padding: 2rem 0;
-    }
-</style>
-{% endblock %}
-
-{% block head %}
-<style>
-    .sessions-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .tabs {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .tab-btn {
-        padding: 0.5rem 1.2rem;
-        font-size: 1rem;
-        border-radius: 20px;
-        border: none;
-        cursor: pointer;
-        background-color: #e5e7eb;
-        transition: 0.25s ease;
-    }
-
-    .tab-btn.active {
-        background-color: #2E8857;
-        color: white;
-    }
-
-    .tab-btn:hover {
-        background-color: #d1d5db;
-    }
-
-    .session-card {
-        background: #ffffff;
-        padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        border-left: 6px solid #2E8857;
-        animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-        from {opacity: 0; transform: translateY(6px);}
-        to {opacity: 1; transform: translateY(0);}
-    }
-
-    .session-title {
-        font-size: 1.4rem;
-        font-weight: bold;
-        color: #2E8857;
-        margin-bottom: 0.3rem;
-    }
-
-    .session-details {
-        color: #374151;
-        margin-bottom: 0.5rem;
-        line-height: 1.4;
-    }
-
-    .session-type {
-        font-size: 0.9rem;
-        font-weight: 600;
-        padding: 0.2rem 0.5rem;
-        border-radius: 5px;
-        display: inline-block;
-        margin-bottom: 0.6rem;
-    }
-
-    .public-tag {
-        background-color: #d1fae5;
-        color: #065f46;
-    }
-
-    .private-tag {
-        background-color: #fee2e2;
-        color: #991b1b;
-    }
-
-    .join-btn {
-        margin-top: 1rem;
-        padding: 0.5rem 1.2rem;
-        font-size: 1rem;
-        background-color: #2E8857;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: 0.25s ease;
-    }
-
-    .join-btn:hover {
-        background-color: #256f46;
-        transform: translateY(-2px);
     }
 
     .empty-message {
@@ -212,17 +93,9 @@
 {% endblock %}
 
 {% block content %}
+
 <h2 style="color:#2E8857; text-align:center;">Study Sessions</h2>
 
-<!-- TABS -->
-<div class="tabs">
-    <button class="tab-btn active" onclick="showTab('all')">All Sessions</button>
-    <button class="tab-btn" onclick="showTab('my')">My Sessions</button>
-    <button class="tab-btn" onclick="showTab('upcoming')">Upcoming</button>
-</div>
-<h2 style="color:#2E8857; text-align:center;">Study Sessions</h2>
-
-<!-- TABS -->
 <div class="tabs">
     <button class="tab-btn active" onclick="showTab('all')">All Sessions</button>
     <button class="tab-btn" onclick="showTab('my')">My Sessions</button>
@@ -230,85 +103,65 @@
 </div>
 
 <div class="sessions-container">
-
-    <!-- ALL SESSIONS TAB -->
+    <!-- ALL -->
     <div class="tab-content" id="all">
-        {% if sessions %}
-            {% for s in sessions %}
+        {% for s in sessions %}
             <div class="session-card">
                 <div class="session-title">{{ s.title }}</div>
-
-                <div class="session-type {{ 'public-tag' if s.is_public else 'private-tag' }}">
-                    {{ 'Public Session' if s.is_public else 'Private Session' }}
-                </div>
-
                 <div class="session-details">
-                    <strong>Subject:</strong> {{ s.subject }}<br>
-                    <strong>When:</strong> {{ s.date_time }}<br>
-                    <strong>Where:</strong> {{ s.location }}<br>
-                    <strong>Description:</strong> {{ s.description }}
+                    {{ s.subject }} • {{ s.date_time }} • {{ s.location }}
                 </div>
-
                 <form method="POST" action="{{ url_for('join_session', session_id=s.id) }}">
-                    <button class="join-btn" type="submit">Join Session</button>
+                    <button class="join-btn">Join Session</button>
                 </form>
             </div>
-            {% endfor %}
         {% else %}
-            <p class="empty-message">No study sessions available yet.</p>
-        {% endif %}
+            <p class="empty-message">No sessions available.</p>
+        {% endfor %}
     </div>
 
-    <!-- MY SESSIONS TAB (You must send this data from Flask) -->
+    <!-- MY -->
     <div class="tab-content" id="my" style="display:none;">
-        {% if my_sessions %}
-            {% for s in my_sessions %}
-                <div class="session-card">
-                    <div class="session-title">{{ s.title }}</div>
-                    <div class="session-type public-tag">Joined</div>
-
-                    <div class="session-details">
-                        <strong>Subject:</strong> {{ s.subject }}<br>
-                        <strong>When:</strong> {{ s.date_time }}<br>
-                        <strong>Where:</strong> {{ s.location }}
-                    </div>
-                </div>
-            {% endfor %}
+        {% for s in my_sessions %}
+            <div class="session-card">{{ s.title }}</div>
         {% else %}
-            <p class="empty-message">You haven't joined any sessions yet.</p>
-        {% endif %}
+            <p class="empty-message">No joined sessions.</p>
+        {% endfor %}
     </div>
 
-    <!-- UPCOMING TAB -->
+    <!-- UPCOMING -->
     <div class="tab-content" id="upcoming" style="display:none;">
-        {% if upcoming %}
-            {% for s in upcoming %}
-                <div class="session-card">
-                    <div class="session-title">{{ s.title }}</div>
-                    <div class="session-details">
-                        <strong>When:</strong> {{ s.date_time }}<br>
-                        <strong>Subject:</strong> {{ s.subject }}
-                    </div>
-                </div>
-            {% endfor %}
+        {% for s in upcoming %}
+            <div class="session-card">{{ s.title }}</div>
         {% else %}
             <p class="empty-message">No upcoming sessions.</p>
-        {% endif %}
+        {% endfor %}
     </div>
-
 </div>
 
-<!-- TAB SWITCHER SCRIPT -->
 <script>
-    function showTab(name) {
-        document.querySelectorAll('.tab-content').forEach(div => div.style.display = 'none');
-        document.getElementById(name).style.display = 'block';
+function showTab(name) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(div => {
+        div.style.display = 'none';
+    });
 
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        
-        const btnMap = { all: 0, my: 1, upcoming: 2 };
-        document.querySelectorAll('.tab-btn')[btnMap[name]].classList.add('active');
-    }
+    // Show selected tab
+    document.getElementById(name).style.display = 'block';
+
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Activate the clicked button
+    const btnMap = { all: 0, my: 1, upcoming: 2 };
+    document.querySelectorAll('.tab-btn')[btnMap[name]].classList.add('active');
+}
 </script>
 
+
+
+
 {% endblock %}
+
