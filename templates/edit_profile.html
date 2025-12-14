@@ -1,25 +1,123 @@
 {% extends "base.html" %}
-
 {% block title %}Edit Profile{% endblock %}
 
+{% block head %}
+<style>
+    .edit-container {
+        max-width: 600px;
+        margin: 2.5rem auto;
+        padding: 2rem 2.5rem;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .edit-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        text-align: center;
+        color: #2E8857;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.3rem;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #374151;
+        display: block;
+        margin-bottom: 0.35rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.7rem;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 1rem;
+        transition: border-color 0.25s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #2E8857;
+    }
+
+    .save-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #2E8857;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: 0.3s ease;
+        margin-top: 0.5rem;
+    }
+
+    .save-btn:hover {
+        background-color: #256f46;
+        transform: translateY(-2px);
+    }
+
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 1.3rem;
+        font-weight: 600;
+        color: #2E8857;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: #1d5c36;
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>Edit Profile for {{ profile.name }}</h2>
+<div class="edit-container">
 
-<form method="POST">
-    <label>Major:</label><br>
-    <input type="text" name="major" value="{{ profile.major }}"><br><br>
+    <h2 class="edit-title">Edit Profile: {{ profile.name }}</h2>
 
-    <label>Classes (comma-separated):</label><br>
-    <input type="text" name="classes" value="{{ profile.classes }}"><br><br>
+    <form method="POST">
+        <div class="form-group">
+            <label>Major</label>
+            <input type="text" name="major" value="{{ profile.major }}">
+        </div>
 
-    <label>Interests:</label><br>
-    <input type="text" name="interests" value="{{ profile.interests }}"><br><br>
+        <div class="form-group">
+            <label>Classes (comma-separated)</label>
+            <input type="text" name="classes" value="{{ profile.classes }}">
+        </div>
 
-    <label>Bio:</label><br>
-    <textarea name="bio" rows="4" cols="50">{{ profile.bio }}</textarea><br><br>
+        <div class="form-group">
+            <label>Interests</label>
+            <input type="text" name="interests" value="{{ profile.interests }}">
+        </div>
 
-    <input type="submit" value="Save Changes">
-</form>
+        <div class="form-group">
+            <label>Bio</label>
+            <textarea name="bio" rows="4">{{ profile.bio }}</textarea>
+        </div>
 
-<p><a href="{{ url_for('user', usr=profile.name) }}">Back to Profile</a></p>
+        <button type="submit" class="save-btn">Save Changes</button>
+    </form>
+
+    <a class="back-link" href="{{ url_for('user', usr=profile.name) }}">← Back to Profile</a>
+
+</div>
 {% endblock %}

@@ -1,6 +1,131 @@
 {% extends "base.html" %}
 {% block title %}Profile{% endblock %}
 
+{% block head %}
+<style>
+
+    /* Page wrapper */
+    .profile-wrapper {
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    /* Main profile card */
+    .profile-card {
+        width: 100%;
+        max-width: 750px;
+        background: #ffffff;
+        padding: 1.8rem;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        transition: 0.3s ease;
+        text-align: center;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .profile-title {
+        font-size: 2rem;
+        color: #2E8857;
+        margin-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    .profile-buttons {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.7rem;
+    }
+
+    .profile-btn,
+    .friend-btn {
+        background: #2E8857;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.25s ease;
+        display: inline-block;
+        font-weight: 600;
+    }
+
+    .profile-btn:hover,
+    .friend-btn:hover {
+        background: #256f46;
+        transform: translateY(-2px);
+    }
+
+    /* Content cards (Posts, Sessions, Info) */
+    .content-card {
+        width: 100%;
+        max-width: 750px;
+        background: #ffffff;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.07);
+        transition: 0.3s ease;
+    }
+
+    .content-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    }
+
+    .section-title {
+        font-size: 1.6rem;
+        color: #2E8857;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .info-item {
+        margin-bottom: 0.7rem;
+        font-size: 1.1rem;
+        color: #374151;
+    }
+
+    .info-label {
+        font-weight: 700;
+        color: #2E8857;
+    }
+
+    /* Lists */
+    ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    li {
+        padding: 0.7rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        line-height: 1.4;
+    }
+
+    li:last-child {
+        border-bottom: none;
+    }
+
+    .post-date {
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+</style>
+{% endblock %}
+
 {% block content %}
 
 <h1>{{ profile.name }}'s Profile</h1>
@@ -64,7 +189,9 @@
     </ul>
 </section>
 
-<hr>
+    <!-- STUDY SESSIONS CARD -->
+    <div class="content-card">
+        <h2 class="section-title">📚 Your Study Sessions</h2>
 
 <!-- STUDY SESSIONS -->
 <section>

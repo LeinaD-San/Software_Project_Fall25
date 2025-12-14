@@ -33,12 +33,94 @@
         margin-bottom: 1.5rem;
     }
 
+    /* Center the login card */
+    .login-container {
+        max-width: 400px;
+        margin: 3rem auto;
+        padding: 2rem;
+        border-radius: 12px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        text-align: center;
+        animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-title {
+        font-size: 1.8rem;
+        color: #2E8857;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-subtitle {
+        font-size: 0.95rem;
+        color: #6b7280;
+        margin-bottom: 1.5rem;
+    }
+
     .form-group {
+        text-align: left;
+        margin-bottom: 1.2rem;
         text-align: left;
         margin-bottom: 1.2rem;
     }
 
+
     .form-group label {
+        font-weight: 600;
+        color: #374151;
+        display: block;
+        margin-bottom: 0.4rem;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.6rem;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #2E8857;
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 0.7rem;
+        background-color: #2E8857;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s ease;
+        margin-top: 0.5rem;
+    }
+
+    .login-btn:hover {
+        background-color: #256f46;
+        transform: translateY(-2px);
+    }
+
+    .back-link {
+        display: block;
+        margin-top: 1.4rem;
+        text-decoration: none;
+        color: #2E8857;
+        font-weight: 600;
+        transition: 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: #1d5c36;
+        text-decoration: underline;
         font-weight: 600;
         color: #374151;
         display: block;
@@ -108,10 +190,32 @@
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required>
         </div>
+{% endblock %}
 
+{% block content %}
+<div class="login-container">
+    <h2 class="login-title">Login</h2>
+    <p class="login-subtitle">Institutional email only</p>
+
+    <form action="{{ url_for('login') }}" method="post">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="text" id="email" name="user" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="login-btn">Sign In</button>
+    </form>
         <button type="submit" class="login-btn">Sign In</button>
     </form>
 
     <a href="{{ url_for('home') }}" class="back-link">← Return to Home</a>
 </div>
+    <a href="{{ url_for('home') }}" class="back-link">← Return to Home</a>
+</div>
 {% endblock %}
+

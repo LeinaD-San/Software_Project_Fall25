@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Your Feed - Study Sync+{% endblock %}
+
+{% block content %}
+<style>
+    .feed-title {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    .empty {
+        text-align: center;
+        color: #777;
+        padding: 40px 0;
+        font-size: 18px;
+    }
+    .post {
+        border-bottom: 1px solid #eee;
+        padding: 15px 0;
+    }
+    .post:last-child {
+        border-bottom: none;
+    }
+    .post-header {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .post-meta {
+        font-size: 12px;
+        color: #999;
+        margin-bottom: 8px;
+    }
+</style>
+
+<h1>Your Feed</h1>
+
+{% if posts and posts|length > 0 %}
+    {% for post in posts %}
+        <div class="post">
+            <div class="post-header">{{ post.profile.name }}</div>
+            <div class="post-meta">
+                {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </div>
+            <div class="post-body">
+                {{ post.content }}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="empty">
+        Feed is empty right now.<br>
+        No posts yet — be the first to share something!
+    </div>
+{% endif %}
+
+{% endblock %}
+

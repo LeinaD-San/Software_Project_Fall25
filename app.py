@@ -8,7 +8,7 @@ app.secret_key = 'superdupermegaexclusivesecretkeyshh'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
-
+'Tamara here now:)'
 
 # -----------------------------
 # DATABASE MODELS
@@ -259,6 +259,22 @@ def join_session(session_id):
         db.session.commit()
 
     return redirect(url_for('session_page'))
+
+'''
+
+'''
+#your feed
+#@app.route('/feed')
+#def feed():
+ #   posts = UserPost.query.order_by(UserPost.created_at.desc()).all()
+ #   return render_template('feed.html', posts=posts)
+@app.route('/feed')
+def feed():
+    posts = UserPost.query.order_by(UserPost.created_at.desc()).all()
+    return render_template('feed.html', posts=posts)
+
+
+
 
 
 # -----------------------------
