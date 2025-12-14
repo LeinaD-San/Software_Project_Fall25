@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
 
 
-
 app = Flask(__name__)
 app.secret_key = 'superdupermegaexclusivesecretkeyshh'
 
@@ -296,6 +295,15 @@ def send_friend_request(usr):
 def logout():
     session.clear()
     return redirect(url_for('home'))
+
+@app.route("/feed")
+def feed():
+    username = session.get('user')
+    if not username:
+        return redirect(url_for('login'))
+
+    posts = UserPost.query.order_by(UserPost.created_at.desc()).all()
+    return render_template("feed.html", posts=posts)
 
 
 # -----------------------------

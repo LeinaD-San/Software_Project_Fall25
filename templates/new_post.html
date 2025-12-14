@@ -1,18 +1,18 @@
 {% extends "base.html" %}
+{% block title %}New Post{% endblock %}
+
 {% block content %}
-<h2>Create a Study Session</h2>
+<h2>Create a Post</h2>
 
 <form method="POST">
-    Title: <input type="text" name="title"><br><br>
-    Subject: <input type="text" name="subject"><br><br>
-    Description:<br>
-    <textarea name="description"></textarea><br><br>
-    Location: <input type="text" name="location"><br><br>
-    Date & Time: <input type="text" name="date_time"><br><br>
-    Public? <input type="checkbox" name="is_public"><br><br>
+    <textarea
+        name="content"
+        rows="4"
+        placeholder="Share a study tip or question..."
+        required></textarea><br><br>
 
-    <input type="submit" value="Create">
+    <button type="submit">Post</button>
 </form>
 
-<a href="{{ url_for('user', usr=profile.name) }}">Cancel</a>
+<a href="{{ url_for('feed') }}">Cancel</a>
 {% endblock %}

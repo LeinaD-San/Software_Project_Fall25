@@ -3,58 +3,83 @@
 
 {% block content %}
 
-<h1>Welcome, {{ profile.name }}!</h1>
+<h1>{{ profile.name }}'s Profile</h1>
 
-<p><a href="{{ url_for('edit_profile', usr=profile.name) }}">Edit Profile</a></p>
-
-<h3>Major: {{ profile.major if profile.major else "Not set yet" }}</h3>
-<h3>Classes: {{ profile.classes if profile.classes else "No classes listed yet" }}</h3>
-<p><strong>Interests:</strong> {{ profile.interests if profile.interests else "No interests added yet" }}</p>
-<p><strong>Bio:</strong> {{ profile.bio if profile.bio else "No bio yet." }}</p>
-
-
-<!-- PROFILE BIO -->
-<h2>Bio</h2>
-<p>{{ profile.bio if profile.bio else "No bio yet." }}</p>
-
-<!-- STUDENT INFO -->
-<h3>Major: {{ profile.major if profile.major else "Add major in profile settings" }}</h3>
-<h3>Classes: {{ profile.classes if profile.classes else "No classes listed yet." }}</h3>
+<a class="btn" href="{{ url_for('edit_profile', usr=profile.name) }}">
+    Edit Profile
+</a>
 
 <hr>
 
-<!-- CREATE BUTTONS -->
-<a href="{{ url_for('new_post', usr=profile.name) }}">Create Study Tip Post</a> |
-<a href="{{ url_for('create_session', usr=profile.name) }}">Create Study Session</a>
-<form method="POST" action="{{ url_for('send_friend_request', usr=profile.name) }}">
-    <button type="submit">Send Friend Request</button>
-</form>
+<!-- PROFILE INFO CARD -->
+<section>
+    <h2>Profile Information</h2>
+
+    <p><strong>Major:</strong>
+        {{ profile.major if profile.major else "Not set yet" }}
+    </p>
+
+    <p><strong>Classes:</strong>
+        {{ profile.classes if profile.classes else "No classes listed yet" }}
+    </p>
+
+    <p><strong>Interests:</strong>
+        {{ profile.interests if profile.interests else "No interests added yet" }}
+    </p>
+
+    <p><strong>Bio:</strong></p>
+    <p>
+        {{ profile.bio if profile.bio else "No bio yet." }}
+    </p>
+</section>
+
+<hr>
+
+<!-- ACTIONS -->
+<section>
+    <h2>Actions</h2>
+    <a href="{{ url_for('new_post', usr=profile.name) }}">Create Study Tip Post</a> |
+    <a href="{{ url_for('create_session', usr=profile.name) }}">Create Study Session</a>
+
+    <form method="POST" action="{{ url_for('send_friend_request', usr=profile.name) }}">
+        <button type="submit">Send Friend Request</button>
+    </form>
+</section>
 
 <hr>
 
 <!-- USER POSTS -->
-<h2>Your Posts</h2>
-<ul>
-{% for post in posts %}
-    <li>{{ post.content }} <br><small>{{ post.created_at }}</small></li>
-{% else %}
-    <li>No posts yet.</li>
-{% endfor %}
-</ul>
+<section>
+    <h2>Your Posts</h2>
+    <ul>
+    {% for post in posts %}
+        <li>
+            {{ post.content }}
+            <br>
+            <small>{{ post.created_at }}</small>
+        </li>
+    {% else %}
+        <li>No posts yet.</li>
+    {% endfor %}
+    </ul>
+</section>
 
 <hr>
 
 <!-- STUDY SESSIONS -->
-<h2>Your Study Sessions</h2>
-<ul>
-{% for s in sessions %}
-    <li>
-        <strong>{{ s.title }}</strong> - {{ s.subject }} <br>
-        {{ s.date_time }} @ {{ s.location }}
-    </li>
-{% else %}
-    <li>You haven't created any study sessions yet.</li>
-{% endfor %}
-</ul>
+<section>
+    <h2>Your Study Sessions</h2>
+    <ul>
+    {% for s in sessions %}
+        <li>
+            <strong>{{ s.title }}</strong><br>
+            {{ s.subject }}<br>
+            {{ s.date_time }} @ {{ s.location }}
+        </li>
+    {% else %}
+        <li>You haven't created any study sessions yet.</li>
+    {% endfor %}
+    </ul>
+</section>
 
 {% endblock %}
