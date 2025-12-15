@@ -155,7 +155,7 @@
                 {{ s.subject }} • {{ s.date_time }} • {{ s.location }}
             </div>
 
-            {% if s.creator_id == profile.id %}
+            {% if current_user and s.creator_id == current_user.id %}
                 <span class="session-type public-tag">You created this</span>
             {% else %}
                 <span class="session-type private-tag">Joined</span>
