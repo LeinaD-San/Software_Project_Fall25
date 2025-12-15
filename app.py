@@ -1,23 +1,23 @@
+# ====== IMPORTS & APP CONFIG ======
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
-
 
 app = Flask(__name__)
 app.secret_key = 'superdupermegaexclusivesecretkeyshh'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-db = SQLAlchemy(app)
-'Tamara here now:)'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# -----------------------------
-# DATABASE MODELS
-# -----------------------------
-friendship = db.Table('friendship',
+db = SQLAlchemy(app)
+
+
+# ====== DATABASE MODELS ======
+session_attendees = db.Table(
+    'session_attendees',
     db.Column('user_id', db.Integer, db.ForeignKey('user_profile.id')),
-    db.Column('friend_id', db.Integer, db.ForeignKey('user_profile.id'))
-    
-    )
+    db.Column('session_id', db.Integer, db.ForeignKey('study_session.id'))
+)
 
 class UserProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,38 +27,7 @@ class UserProfile(db.Model):
     classes = db.Column(db.Text, default="")
     interests = db.Column(db.Text, default="")
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-
-    posts = db.relationship("UserPost", backref="profile", lazy=True)
     sessions_created = db.relationship("StudySession", backref="creator", lazy=True)
-
-    friends = db.relationship(
-    'UserProfile',
-    secondary='friendship',
-    primaryjoin=(id == friendship.c.user_id),
-    secondaryjoin=(id == friendship.c.friend_id),
-    backref='friend_of'
-)
-
-
-
-class UserPost(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user_profile.id'))
-    content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-
-class FriendRequest(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    from_user = db.Column(db.Integer, db.ForeignKey('user_profile.id'))
-    to_user = db.Column(db.Integer, db.ForeignKey('user_profile.id'))
-    status = db.Column(db.String(20), default="pending")  # pending, accepted, denied
-
-
-
-session_attendees = db.Table('session_attendees',
-    db.Column('user_id', db.Integer, db.ForeignKey('user_profile.id')),
-    db.Column('session_id', db.Integer, db.ForeignKey('study_session.id'))
-)
 
 
 class StudySession(db.Model):
@@ -72,116 +41,167 @@ class StudySession(db.Model):
     is_public = db.Column(db.Boolean, default=True)
 
     attendees = db.relationship(
-    'UserProfile',
-    secondary='session_attendees',
-    backref='joined_sessions'
-)
+        'UserProfile',
+        secondary=session_attendees,
+        backref='joined_sessions'
+    )
 
 
+# ====== MAIN & LOGIN ======
+@app.route('/')
+def home():
+    #re-route to login page
+    return redirect(url_for('login'))
 
-# -----------------------------
-# LOGIN
-# -----------------------------
-@app.route('/login', methods=['POST', 'GET'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    # If already logged in, go to sessions
     if session.get('user'):
         return redirect(url_for('session_page'))
 
     if request.method == 'POST':
         try:
+            #ensures institution email being used
             user_email = request.form['user']
             local_part, institution = user_email.split('@')
-
-            if not local_part:
-                raise ValueError('Invalid email')
-
-            name_part = local_part.split('.')
-            first_name = name_part[0].capitalize()
-
+            first_name = local_part.split('.')[0].capitalize()
         except:
             return render_template('login.html')
 
         if institution != 'utrgv.edu':
             return render_template('login.html')
 
-        # Create user profile if not exists
+        #checks to see if profile exists
         profile = UserProfile.query.filter_by(name=first_name).first()
-
         if not profile:
             profile = UserProfile(name=first_name)
             db.session.add(profile)
             db.session.commit()
 
-        # Store login in Flask session
         session['user'] = first_name
-
-        # Redirect to sessions (main page)
         return redirect(url_for('session_page'))
 
     return render_template('login.html')
 
-
-
-# -----------------------------
-# HOME
-# -----------------------------
-@app.route('/')
-def home():
+@app.route('/logout')
+def logout():
+    session.clear()
     return redirect(url_for('login'))
 
-'''
+
+# ====== SESSION ROUTES ======
 @app.route('/sessions')
-def sessions_page():
-    sessions = StudySession.query.all()
-    return render_template('session.html', sessions=sessions)
-'''
-@app.route('/session/<int:session_id>')
-def session_detail(session_id):
-    sess = StudySession.query.get_or_404(session_id)
-    creator = UserProfile.query.get(sess.creator_id)
+def session_page():
+    username = session.get('user')
+    if not username:
+        return redirect(url_for('login'))
+
+    current_user = UserProfile.query.filter_by(name=username).first()
+    all_sessions = StudySession.query.all()
+
+    # Created OR joined
+    my_sessions = [
+        s for s in all_sessions
+        if s.creator_id == current_user.id or current_user in s.attendees
+    ]
+
+    upcoming = my_sessions  # for now
 
     return render_template(
-        'session_detail.html',
-        study_session=sess,
-        creator=creator
+        'session.html',
+        sessions=all_sessions,
+        my_sessions=my_sessions,
+        upcoming=upcoming,
+        current_user=current_user   # ✅ ADD THIS
     )
 
 
-# -----------------------------
-# CREATE STUDY SESSION
-# -----------------------------
-@app.route('/profile/<usr>/create-session', methods=['POST', 'GET'])
+
+@app.route('/profile/<usr>/create-session', methods=['GET', 'POST'])
 def create_session(usr):
     profile = UserProfile.query.filter_by(name=usr).first_or_404()
 
     if request.method == 'POST':
-        session_obj = StudySession(
+        sess = StudySession(
             creator_id=profile.id,
             title=request.form['title'],
             subject=request.form['subject'],
             description=request.form['description'],
             location=request.form['location'],
             date_time=request.form['date_time'],
-            is_public=request.form.get('is_public') == 'on'
+            is_public='is_public' in request.form
         )
-        db.session.add(session_obj)
+        db.session.add(sess)
         db.session.commit()
-        return redirect(url_for('user', usr=usr))
+        return redirect(url_for('session_page'))
 
     return render_template('create_session.html', profile=profile)
 
-@app.route('/edit-session/<int:session_id>', methods=['GET', 'POST'])
-def edit_session(session_id):
+@app.route('/session/<int:session_id>')
+def session_detail(session_id):
     sess = StudySession.query.get_or_404(session_id)
+    creator = UserProfile.query.get(sess.creator_id)
 
+    current_user = None
+    if session.get('user'):
+        current_user = UserProfile.query.filter_by(
+            name=session.get('user')
+        ).first()
+
+    return render_template(
+        'session_detail.html',
+        study_session=sess,
+        creator=creator,
+        current_user=current_user
+    )
+
+
+@app.route('/join-session/<int:session_id>', methods=['POST'])
+def join_session(session_id):
     username = session.get('user')
     if not username:
         return redirect(url_for('login'))
 
     user = UserProfile.query.filter_by(name=username).first()
+    sess = StudySession.query.get_or_404(session_id)
 
-    # Only creator can edit
+    # Creator cannot join their own session
+    if sess.creator_id == user.id:
+        return redirect(url_for('session_detail', session_id=session_id))
+
+    # Prevent duplicate joins
+    if user not in sess.attendees:
+        sess.attendees.append(user)
+        db.session.commit()
+
+    return redirect(url_for('session_detail', session_id=session_id))
+
+
+@app.route('/delete-session/<int:session_id>', methods=['POST'])
+def delete_session(session_id):
+    username = session.get('user')
+    if not username:
+        return redirect(url_for('login'))
+
+    user = UserProfile.query.filter_by(name=username).first()
+    sess = StudySession.query.get_or_404(session_id)
+
+    if sess.creator_id != user.id:
+        return redirect(url_for('session_page'))
+
+    db.session.delete(sess)
+    db.session.commit()
+
+    return redirect(url_for('session_page'))
+
+@app.route('/edit-session/<int:session_id>', methods=['GET', 'POST'])
+def edit_session(session_id):
+    username = session.get('user')
+    if not username:
+        return redirect(url_for('login'))
+
+    user = UserProfile.query.filter_by(name=username).first()
+    sess = StudySession.query.get_or_404(session_id)
+
     if sess.creator_id != user.id:
         return redirect(url_for('session_page'))
 
@@ -192,50 +212,32 @@ def edit_session(session_id):
         sess.location = request.form['location']
         sess.date_time = request.form['date_time']
         sess.is_public = 'is_public' in request.form
-
         db.session.commit()
-        return redirect(url_for('user', usr=username))
+        return redirect(url_for('session_detail', session_id=session_id))
 
     return render_template('edit_session.html', study_session=sess)
 
-@app.route('/delete-session/<int:session_id>', methods=['POST'])
-def delete_session(session_id):
-    sess = StudySession.query.get_or_404(session_id)
-
-    username = session.get('user')
-    if not username:
-        return redirect(url_for('login'))
-
-    user = UserProfile.query.filter_by(name=username).first()
-
-    # Only creator can delete
-    if sess.creator_id != user.id:
-        return redirect(url_for('session_page'))
-
-    db.session.delete(sess)
-    db.session.commit()
-
-    return redirect(url_for('user', usr=username))
 
 
-# -----------------------------
-# CREATE POST
-# -----------------------------
-@app.route('/profile/<usr>/new-post', methods=['GET', 'POST'])
-def new_post(usr):
+# ====== PROFILE ROUTES ======
+@app.route('/profile/<usr>')
+def user(usr):
     profile = UserProfile.query.filter_by(name=usr).first_or_404()
 
-    if request.method == 'POST':
-        post = UserPost(
-            user_id=profile.id,
-            content=request.form['content']
-        )
-        db.session.add(post)
-        db.session.commit()
-        return redirect(url_for('user', usr=usr))
+    created_sessions = StudySession.query.filter_by(
+        creator_id=profile.id
+    ).all()
 
-    return render_template('new_post.html', profile=profile)
+    joined_sessions = profile.joined_sessions
 
+    # Combine + remove duplicates
+    sessions = list(set(created_sessions + joined_sessions))
+
+    return render_template(
+        'user.html',
+        profile=profile,
+        sessions=sessions
+    )
 
 
 @app.route('/profile/<usr>/edit', methods=['GET', 'POST'])
@@ -253,113 +255,38 @@ def edit_profile(usr):
     return render_template('edit_profile.html', profile=profile)
 
 
-def is_friend(user1, user2):
-    return user2 in user1.friends
-
-@app.route('/sessions')
-def session_page():
-    username = session.get('user')
-    if not username:
-        return redirect(url_for('login'))
-
-    current_user = UserProfile.query.filter_by(name=username).first()
-
-    all_sessions = StudySession.query.all()
-
-    visible_sessions = []
-    my_sessions = []
-
-    for s in all_sessions:
-        # ---------- MY SESSIONS ----------
-        if s.creator_id == current_user.id or current_user in s.attendees:
-            my_sessions.append(s)
-
-        # ---------- ALL / VISIBLE SESSIONS ----------
-        if s.creator_id == current_user.id:
-            visible_sessions.append(s)
-        elif s.is_public:
-            visible_sessions.append(s)
-        else:
-            creator = s.creator
-            if is_friend(current_user, creator):
-                visible_sessions.append(s)
-
-    return render_template(
-    'session.html',
-    sessions=visible_sessions,
-    my_sessions=my_sessions,
-    profile=current_user
-)
-
-
-
-@app.route('/join-session/<int:session_id>', methods=['POST'])
-def join_session(session_id):
+# ====== CALENDER  ======
+@app.route('/calendar')
+def calendar():
     username = session.get('user')
     if not username:
         return redirect(url_for('login'))
 
     user = UserProfile.query.filter_by(name=username).first()
-    sess = StudySession.query.get_or_404(session_id)
+    all_sessions = StudySession.query.all()
 
-    # Add user if not already attending
-    if user not in sess.attendees:
-        sess.attendees.append(user)
-        db.session.commit()
+    calendar_events = {}   # All events grouped by date
+    my_events = {}         # User's events grouped by date
 
-    # 👉 Redirect to session detail page
-    return redirect(url_for('session_detail', session_id=sess.id))
+    for s in all_sessions:
+        date_key = s.date_time.split()[0] if s.date_time else "Unscheduled"
 
+        # ---- All events (calendar view) ----
+        calendar_events.setdefault(date_key, []).append(s)
 
-'''
-
-'''
-
-
-
-
-
-# -----------------------------
-# USER PROFILE DASHBOARD
-# -----------------------------
-@app.route('/profile/<usr>')
-def user(usr):
-    profile = UserProfile.query.filter_by(name=usr).first_or_404()
-    user_posts = UserPost.query.filter_by(user_id=profile.id).all()
-    sessions = StudySession.query.filter_by(creator_id=profile.id).all()
+        # ---- My Calendar (created OR joined) ----
+        if s.creator_id == user.id or user in s.attendees:
+            my_events.setdefault(date_key, []).append(s)
 
     return render_template(
-        'user.html',
-        profile=profile,
-        posts=user_posts,
-        sessions=sessions
+        'calendar.html',
+        calendar_events=calendar_events,
+        my_events=my_events
     )
 
 
-@app.route('/profile/<usr>/send-friend-request', methods=['POST'])
-def send_friend_request(usr):
-    sender_name = session.get('user')
-    sender = UserProfile.query.filter_by(name=sender_name).first()
-    receiver = UserProfile.query.filter_by(name=usr).first()
 
-    if sender and receiver and sender != receiver:
-        req = FriendRequest(from_user=sender.id, to_user=receiver.id)
-        db.session.add(req)
-        db.session.commit()
-
-    return redirect(url_for('user', usr=usr))
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('home'))
-
-
-
-
-# -----------------------------
-# RUN APP
-# -----------------------------
+# ====== RUN APP ======
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

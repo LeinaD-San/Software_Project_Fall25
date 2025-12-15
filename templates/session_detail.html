@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<!-- SESSION INFO (PRIMARY) -->
+
 <div class="content-card">
     <h2 style="color:#2E8857;">📚 {{ study_session.title }}</h2>
 
@@ -22,7 +22,6 @@
 
 <br>
 
-<!-- CREATOR INFO (SECONDARY) -->
 <div class="content-card">
     <h3 style="color:#2E8857;">👤 Session Created By</h3>
 
@@ -38,18 +37,24 @@
     </a>
 </div>
 
-<!-- JOIN BUTTON -->
+<!-- JOIN SECTION -->
 {% if session.get('user') %}
-    {% if session.get('user') != creator.name %}
+    {% if session.get('user') == creator.name %}
+        <p><em>You created this session.</em></p>
+
+    {% elif study_session in current_user.joined_sessions %}
+        <p><em>You have already joined this session.</em></p>
+
+    {% else %}
         <form method="POST"
               action="{{ url_for('join_session', session_id=study_session.id) }}">
-            <button type="submit">
-                Join Session
+            <button class="join-btn">
+                Join This Session
             </button>
         </form>
-    {% else %}
-        <p><em>You created this session.</em></p>
     {% endif %}
 {% endif %}
+
+
 
 {% endblock %}

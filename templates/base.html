@@ -104,6 +104,7 @@
         <nav>
     {% if session.get('user') %}
         <a href="{{ url_for('session_page') }}" style="margin-right: 1rem;">Sessions</a>
+        <a href="{{ url_for('calendar') }}">Calendar</a>
 
         <a href="{{ url_for('user', usr=session.get('user')) }}"
            style="margin-right: 1rem;">

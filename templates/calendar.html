@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Calendar{% endblock %}
+
+{% block content %}
+<h2 style="color:#2E8857;">📅 Event Calendar</h2>
+<div class="tabs">
+    <button class="tab-btn active" onclick="showTab('all')">All Events</button>
+    <button class="tab-btn" onclick="showTab('my')">My Calendar</button>
+</div>
+<!-- ALL EVENTS -->
+<div class="tab-content" id="all">
+    {% for date, events in calendar_events.items() %}
+        <div class="content-card">
+            <h3>{{ date }}</h3>
+            <ul>
+            {% for e in events %}
+                <li>
+                    <strong>{{ e.title }}</strong><br>
+                    {{ e.subject }} • {{ e.location }}
+                    <a href="{{ url_for('session_detail', session_id=e.id) }}">View</a>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <p>No events scheduled.</p>
+    {% endfor %}
+</div>
+
+<div class="tab-content" id="my" style="display:none;">
+    
+</div>
+
+{% for date, events in calendar_events.items() %}
+    <div class="content-card">
+        <h3>{{ date }}</h3>
+
+        <ul>
+        {% for e in events %}
+            <li>
+                <strong>{{ e.title }}</strong>
+                ({{ e.subject }})<br>
+                {{ e.location }}
+
+                <a href="{{ url_for('session_detail', session_id=e.id) }}">
+                    View
+                </a>
+
+                {% if session.get('user') == e.creator.name %}
+                    | <a href="{{ url_for('edit_session', session_id=e.id) }}">
+                        Edit
+                      </a>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+{% else %}
+    <p>No events scheduled.</p>
+{% endfor %}
+<script>
+function showTab(name) {
+    document.querySelectorAll('.tab-content').forEach(div => {
+        div.style.display = 'none';
+    });
+    document.getElementById(name).style.display = 'block';
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    const btnMap = { all: 0, my: 1 };
+    document.querySelectorAll('.tab-btn')[btnMap[name]].classList.add('active');
+}
+</script>
+
+{% endblock %}
