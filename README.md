@@ -6,5 +6,5 @@
 ## The user will create thier profile and will state thier field of
 ## study, studying prefrences, and even thier hobbies to create
 ## the connection with others.
-# Group Members Tamara Pena Daniel Sanchez Nick De Leon
+# Group Members  Daniel Sanchez Nick De Leon
 
